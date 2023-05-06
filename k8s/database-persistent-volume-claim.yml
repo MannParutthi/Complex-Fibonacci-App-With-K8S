@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: database-persistent-volume-claim
+spec:
+  accessModes: # Three options => ReadWriteOnce, ReadWriteMany, ReadOnlyMany
+    - ReadWriteOnce # Can be used by a single node
+  resources:
+    requests:
+      storage: 2Gi # for local system => kubernetes will make a slice of the hard drive of 2GB
+  # storageClassName: "XXX" # important but we will keep the default value ; this is used to specify the type of file system we want to use to allocate to pod for production environment on cloud (AWS, Azure, GCP, etc.) - Google Cloud Persistent Disk, AWS Block Store, Azure Disk, Azure File, etc.
+
+
+
+# Volume for postgres => Store data in a volume on the host machine
+# So, incase the container/pod get crashed and a new container/pod is created, the data will be persisted in the volume (not lost)
+
+# Below mentioned different types of volumes are not same as a volume in docker
+
+# kind: Volume => An object that allows a container to store data at the "pod" level 
+#              => Volume is tied to the pod so if the pod is deleted/terminated/crashed, the volume is also deleted => data is lost
+
+# kind: PersistentVolume => An object that allows a container to store data at the "cluster" level (not in 'pod' level, outside it)
+#              => PersistentVolume is not tied to the pod so if the pod is deleted/terminated/crashed, the volume is not deleted  => data is not lost
+
+# kind: PersistentVolumeClaim => An object that allows a container to access a PersistentVolume that meets the spec (accessModes & resources) of the claim 
+# not an actual instance of storage ; storage option that can be attached to a pod config 
+# Kubernetes will find a PersistentVolume that meets the spec of the claim - it can either be Static or Dynamic provisioned
+
+
+# Three access modes for PersistentVolumeClaim
+# ReadWriteOnce => Can be used by a single node
+# ReadWriteMany => Can be read and written by many nodes
+# ReadOnlyMany => Multiple nodes can read from this volume

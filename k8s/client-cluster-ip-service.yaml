@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-cluster-ip-service
+spec:
+  type: ClusterIP # Exposes a set of pods to other objects in the cluster (only accessible from within the cluster)
+  selector:
+    component: web-app # Selects all pods with the label 'component: web' (from k8s/client-deployment.yaml)
+  ports:
+    - port: 3000 # for another pod or another container inside our application to communicate with this container (client container)
+      targetPort: 3000 # identical to the containerPort: 3000 in the client-deployment.yaml file ; port inside the container/pod to forward the traffic to
+
+
+# To check the status of the service
+#   => kubectl get services

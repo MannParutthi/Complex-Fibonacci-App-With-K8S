@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: api-server
+  template:
+    metadata:
+      labels:
+        component: api-server
+    spec:
+      containers:
+        - name: server
+          image: mananparuthi/multi-server
+          ports:
+            - containerPort: 5000
+          env:
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service # name of the service => from redis-cluster-ip-service.yaml
+            - name: REDIS_PORT
+              value: "6379" # default port for redis => from redis-deployment.yaml & redis-cluster-ip-service.yaml
+            - name: PGHOST
+              value: postgres-cluster-ip-service # name of the service => from postgres-cluster-ip-service.yaml
+            - name: PGPORT
+              value: "5432" # default port for postgres => from postgres-deployment.yaml & postgres-cluster-ip-service.yaml
+            - name: PGUSER
+              value: postgres # default username for postgres
+            - name: PGDATABASE
+              value: postgres # default database name for postgres
+            - name: PGPASSWORD # password tied to postgres (not docker) for access
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword # from secret created using kubectl command <secret-name>
+                  key: PGPASSWORD # from secret created using kubectl command (key=value) <key>
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+
+
+# kind: Secret => An object type Used to Securely stores a piece of information in the cluster, such as a database password, an API key, etc
+# Using imperative command instead of making a config file for secret (creating manually even in production environment)
+# Creating a secret for postgres password using imperative command on CLI
+#   => kubectl create <object-type> <type-of-secret> <secret-name> --from-literal key=value => Syntax
+#   => kubectl create secret generic pgpassword --from-literal PGPASSWORD=12345asdf

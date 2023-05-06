@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cluster-ip-service
+spec:
+  type: ClusterIP # Exposes a set of pods to other objects in the cluster (only accessible from within the cluster)
+  selector:
+    component: redis # Selects all pods with the label 'component: redis' (from k8s/redis-deployment.yaml)
+  ports:
+    - port: 6379 # for another pod or another container inside our application to communicate with this container (redis container)
+      targetPort: 6379 # identical to the containerPort: 6379 in the redis-deployment.yaml file ; port inside the container/pod to forward the traffic to

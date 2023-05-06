@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: postgres
+  template:
+    metadata:
+      labels:
+        component: postgres
+    spec:
+      volumes: # to send request for allocating long term storage while it gets created to k8s
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: database-persistent-volume-claim # from database-persistent-volume-claim.yaml
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432 # default port for postgres
+          volumeMounts: # to mount the volume to the container to store data
+            - name: postgres-storage # from above volumes section
+              mountPath: /var/lib/postgresql/data # default path for postgres to be mounted => so any data stored in this path will be stored in the volume
+              subPath: postgres # to store data in a subpath of the volume => make a folder named postgres in the volume and store data in it
+          env:
+            - name: POSTGRES_PASSWORD # password tied to postgres (not docker) for access
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword # from secret created using kubectl command <secret-name>
+                  key: PGPASSWORD # from secret created using kubectl command (key=value) <key>
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"

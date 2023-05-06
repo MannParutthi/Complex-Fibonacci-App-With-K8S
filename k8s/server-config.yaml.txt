@@ -1,0 +1,40 @@
+# This file is used to create a deployment and a service for the server container => Combining multiple files into one
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: api-server
+  template:
+    metadata:
+      labels:
+        component: api-server
+    spec:
+      containers:
+        - name: server
+          image: mananparuthi/multi-server
+          ports:
+            - containerPort: 5000
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+
+--- # This is a separator between the two files => To combine multiple files into one
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-cluster-ip-service
+spec:
+  type: ClusterIP # Exposes a set of pods to other objects in the cluster (only accessible from within the cluster)
+  selector:
+    component: api-server # Selects all pods with the label 'component: api-server' (from k8s/server-deployment.yaml)
+  ports:
+    - port: 5000 # for another pod or another container inside our application to communicate with this container (server container)
+      targetPort: 5000 # identical to the containerPort: 5000 in the server-deployment.yaml file ; port inside the container/pod to forward the traffic to
+

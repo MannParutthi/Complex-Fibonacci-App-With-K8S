@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: web-app
+  template:
+    metadata:
+      labels:
+        component: web-app
+    spec:
+      containers:
+        - name: client
+          image: mananparuthi/multi-client
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+
+
+# Command 
+#   => kubectl apply -f client-deployment.yaml
+#   => kubectl apply -f client-cluster-ip-service.yaml
+#   => ........
+
+# Instead of above commands, we can use the following command to apply all the files in the k8s folder
+#   => kubectl apply -f k8s
+
+# To check the status of the deployment
+#   => kubectl get deployments
+
+# To get logs from a object (pod / service)
+#   => kubectl logs <object-name> e.g kubectl logs client-deployment-5b9b4f6b4f-4q9q2
