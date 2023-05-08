@@ -16,8 +16,8 @@ docker push mananparuthi/multi-worker:$SHA
 kubectl apply -f k8s
 
 # Imperatively set the latest images on each deployment
-kubectl set image deployments/client-deployment client=mananparuthi/multi-client:$SHA
 kubectl set image deployments/server-deployment server=mananparuthi/multi-server:$SHA
+kubectl set image deployments/client-deployment client=mananparuthi/multi-client:$SHA
 kubectl set image deployments/worker-deployment worker=mananparuthi/multi-worker:$SHA
 
 
