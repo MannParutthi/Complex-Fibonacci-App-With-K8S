@@ -35,10 +35,6 @@ spec:
                 secretKeyRef:
                   name: pgpassword # from secret created using kubectl command <secret-name>
                   key: PGPASSWORD # from secret created using kubectl command (key=value) <key>
-          resources:
-            limits:
-              memory: "128Mi"
-              cpu: "500m"
 
 
 # kind: Secret => An object type Used to Securely stores a piece of information in the cluster, such as a database password, an API key, etc
