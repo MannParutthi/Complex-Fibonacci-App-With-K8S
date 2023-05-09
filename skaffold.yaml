@@ -1,0 +1,52 @@
+apiVersion: skaffold/v2beta12
+kind: Config
+build:
+  local:
+    push: false # don't push to docker hub => by default, skaffold will try to push to docker hub
+  artifacts: # specifies which containers to manage
+    - image: mananparuthi/multi-client
+      context: client
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        manual: # Any change apart from this files (js, css, html) will trigger a rebuild of the image (not inject) => Mode 1
+          - src: "src/**/*.js" # if any js file is changed then inject it into the container / running pod
+            dest: .
+          - src: "src/**/*.css" # if any css file is changed then inject it into the container / running pod
+            dest: .
+          - src: "src/**/*.html" # if any html file is changed then inject it into the container / running pod
+            dest: .
+    - image: mananparuthi/multi-server
+      context: server
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        manual: # Any change apart from the js files will trigger a rebuild of the image (not inject) => Mode 1
+          - src: "*.js" # if any js file is changed then inject it into the container / running pod
+            dest: .
+    - image: mananparuthi/multi-worker
+      context: worker
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        manual: # Any change apart from the js files will trigger a rebuild of the image (not inject) => Mode 1
+          - src: "*.js" # if any js file is changed then inject it into the container / running pod
+            dest: .
+deploy:
+  kubectl:
+    manifests:
+      - k8s/* 
+
+    
+
+# Skaffold => Command Line Tool to facilitate local development - to be used with kubernetes
+        #  => for taking any changes made in local repo / code and reflecting / updating it in the kubernetes cluster   
+        #  => two modes: 
+        #    Mode 1 =>  Rebuild client image from scratch and updates the image in the kubernetes cluster
+        #    Mode 2 => Inject updated files into client pod, rely on react app to automatically update 
+        #           => Used only when sub-projects have the ability to detect changes and automatically update/reload themselves (like react)
+        #           => DEV environment : Client => React ; Server => Nodemon ; Worker => Nodemon (all have the ability to detect changes and automatically update/reload themselves)
+        
+# To run skaffold => skaffold dev
+
+# On closing skaffold (using Ctrl + C) => it will immediately delete all the deployments, pods and services that it created (even the volumes or databases are deleted)
